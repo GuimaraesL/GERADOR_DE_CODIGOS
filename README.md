@@ -157,13 +157,6 @@ Sinta-se à vontade para abrir *issues* e *pull requests*. Descreva claramente o
 
 ---
 
-## 📄 Licença
-Defina a licença do projeto (ex.: MIT, Apache-2.0). Se não houver, considere adicionar um arquivo `LICENSE`.
-
-
-
----
-
 ## 🗺️ Diagramas (Mermaid)
 
 ### 1) Arquitetura de Módulos e Artefatos
