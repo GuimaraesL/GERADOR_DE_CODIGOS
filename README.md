@@ -123,19 +123,19 @@ pyinstaller --onedir --noconsole ^
 ### 1) Arquitetura de Módulos e Artefatos
 ```mermaid
 graph TD
-    U[Usuário] --> GUI[App gui.py]
+    U[Usuario] --> GUI[App gui.py]
 
-    subgraph CORE [core/]
-        CG[code_generator.py (codigo_valido, proximo_codigo)]
-        EP[excel_processor.py (carregar_codigos_existentes, extrair_siglas, salvar_resultado)]
+    subgraph CORE
+        CG[code_generator.py codigo_valido e proximo_codigo]
+        EP[excel_processor.py carregar_codigos_existentes extrair_siglas salvar_resultado]
     end
 
-    subgraph UTILS [utils/]
-        H[helpers.py (letra_para_coluna)]
+    subgraph UTILS
+        H[helpers.py letra_para_coluna]
     end
 
-    subgraph CONFIG [config/]
-        T[texts.py (TEXTS)]
+    subgraph CONFIG
+        T[texts.py TEXTS]
     end
 
     GUI --> EP
@@ -143,16 +143,16 @@ graph TD
     GUI --> H
     GUI --> T
 
-    B[(Base.xlsx - aba: aba1, colunas: A/B)]
-    S[(Siglas.xlsx - aba: SIGLAS, coluna: A)]
-    J[(codigos.json)]
-    R[(Aba RESULTADO*)]
+    B[Base.xlsx aba aba1 colunas A B]
+    S[Siglas.xlsx aba SIGLAS coluna A]
+    J[codigos.json]
+    R[Aba RESULTADO variantes]
 
-    EP -- lê --> B
-    EP -- gera --> J
-    EP -- lê --> S
-    EP -- escreve --> R
-    CG -- usa --> J
+    EP --> B
+    EP --> J
+    EP --> S
+    EP --> R
+    CG --> J
 ```
 
 ### 2) Diagrama de Sequência (Fluxo pela Interface)
