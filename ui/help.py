@@ -1,8 +1,7 @@
 ﻿"""
 Módulo de ajuda e integração com repositório GitHub.
-Mantém a GUI principal limpa, expondo utilitários para:
-- Janela de ajuda (Toplevel)
-- Ícone/link do GitHub (com controle de tamanho)
+- Janela de ajuda (Toplevel) clara e persuasiva
+- Ícone/link do GitHub reutilizável (com controle de tamanho 16x16)
 """
 
 import tkinter as tk
@@ -12,7 +11,7 @@ from pathlib import Path
 
 import ttkbootstrap as ttk
 
-# Pillow é opcional: se existir, usamos para redimensionar com qualidade
+# Pillow é opcional; se existir, redimensiona melhor o ícone
 try:
     from PIL import Image, ImageTk
     PIL_AVAILABLE = True
@@ -20,7 +19,7 @@ except Exception:
     PIL_AVAILABLE = False
 
 REPO_URL = "https://github.com/GuimaraesL/GERADOR_DE_CODIGOS"
-TARGET_SIZE = (16, 16)  # largura, altura desejadas do ícone
+TARGET_SIZE = (16, 16)  # tamanho alvo do ícone
 
 
 def _open_repo(url: str = REPO_URL):
@@ -28,44 +27,58 @@ def _open_repo(url: str = REPO_URL):
 
 
 def show_help(parent: tk.Misc, repo_url: str = REPO_URL):
-    """Exibe a janela com guia de ajuda básico e link para o repositório."""
+    """Exibe a janela com guia de ajuda aprimorado e ícone clicável do GitHub."""
     win = tk.Toplevel(parent)
     win.title("Guia de ajuda")
-    win.geometry("640x540")
+    win.geometry("640x560")
     win.transient(parent)
     win.grab_set()
 
     frame = ttk.Frame(win, padding=10)
     frame.pack(fill=tk.BOTH, expand=tk.YES)
 
-    titulo = ttk.Label(frame, text="Guia de ajuda — Gerador de Códigos", font=("Segoe UI", 12, "bold"))
-    titulo.pack(anchor=tk.W, pady=(0, 8))
+    # Cabeçalho da ajuda
+    titulo = ttk.Label(frame, text="📘 Guia de Ajuda — Gerador de Códigos", font=("Segoe UI", 14, "bold"))
+    titulo.pack(anchor=tk.W, pady=(0, 10))
 
+    # Corpo do texto (claro e persuasivo)
     texto = (
         "O que este app faz:\n"
-        "- Lê uma base de códigos no Excel, identifica o próximo número disponível por sigla\n"
-        "  (preenchendo lacunas) e escreve o resultado em uma nova aba 'RESULTADO' no arquivo de siglas.\n\n"
+        "Gera automaticamente códigos sequenciais a partir de siglas, preenchendo lacunas e salvando o resultado no Excel.\n\n"
+
         "Como usar (passo a passo):\n"
-        "1) Clique em 'Selecionar base' e escolha o Excel com os códigos existentes (aba padrão 'aba1').\n"
-        "2) Clique em 'Selecionar entrada' e escolha o Excel com as siglas (aba padrão 'SIGLAS', coluna 'A').\n"
-        "3) (Opcional) Marque 'Gerar códigos com 3 dígitos' para sufixos como 001 (senão usa 0001).\n"
-        "4) Clique em 'Processar'. Uma nova aba 'RESULTADO' (ou RESULTADO1, ...) será criada no arquivo de siglas.\n\n"
-        "Dicas:\n"
-        "- Se a aba/coluna padrão não existir, o app perguntará o nome correto.\n"
-        "- Feche o arquivo de siglas antes de processar (para permitir escrita).\n"
-        "- Aceita formatos de código ABC0001 (4 dígitos) ou ABC001 (3 dígitos).\n\n"
-        "Mais detalhes, código-fonte e issues:\n"
+        "1️⃣ Clique em 'Selecionar base' e escolha o Excel com os códigos existentes (aba padrão: aba1).\n"
+        "2️⃣ Clique em 'Selecionar entrada' e escolha o Excel com as siglas (aba padrão: SIGLAS, coluna A).\n"
+        "3️⃣ (Opcional) Marque 'Gerar códigos com 3 dígitos' para usar formato ABC001 (senão usa ABC0001).\n"
+        "4️⃣ Clique em 'Processar'. O resultado será gravado em uma nova aba 'RESULTADO'.\n\n"
+
+        "Dicas importantes:\n"
+        "✔ Feche o arquivo de siglas antes de processar (para permitir escrita).\n"
+        "✔ Se a aba ou coluna padrão não existir, o app perguntará o nome correto.\n"
+        "✔ Aceita formatos ABC0001 (4 dígitos) ou ABC001 (3 dígitos).\n\n"
+
+        "Mais recursos no GitHub (recomendado):\n"
+        "- Documentação completa (README com exemplos e diagramas)\n"
+        "- Roadmap e melhorias futuras\n"
+        "- Espaço para reportar problemas (Issues)\n\n"
+        "Clique no ícone do GitHub abaixo para abrir o repositório:\n"
     )
 
-    txt = scrolledtext.ScrolledText(frame, wrap="word", height=20)
+    txt = scrolledtext.ScrolledText(frame, wrap="word", height=22)
     txt.insert("1.0", texto)
     txt.configure(state="disabled")
     txt.pack(fill=tk.BOTH, expand=tk.YES)
 
-    # Link para o repositório (compatível com qualquer ttkbootstrap)
-    link = tk.Label(frame, text="Abrir repositório no GitHub", fg="blue", cursor="hand2", font=("Segoe UI", 9))
-    link.pack(anchor=tk.W, pady=(8, 0))
-    link.bind("<Button-1>", lambda e: _open_repo(repo_url))
+    # CTA com ícone reaproveitado do GitHub (botão com imagem 16x16)
+    cta = ttk.Frame(frame)
+    cta.pack(anchor=tk.W, pady=(8, 0))
+
+    gh_btn = create_github_link(cta, repo_url=repo_url)
+    gh_btn.pack(side=tk.LEFT)
+
+    # Opcional: legenda ao lado do ícone (não clicável)
+    legenda = ttk.Label(cta, text="Abrir repositório no GitHub", font=("Segoe UI", 10))
+    legenda.pack(side=tk.LEFT, padx=(8, 0))
 
 
 def create_github_link(parent: tk.Misc, repo_url: str = REPO_URL) -> tk.Widget:
@@ -96,7 +109,7 @@ def create_github_link(parent: tk.Misc, repo_url: str = REPO_URL) -> tk.Widget:
 
 
 def _load_github_icon_scaled() -> PhotoImage | None:
-    """Carrega o ícone e força tamanho alvo (16x16). Usa Pillow se disponível; senão, PhotoImage + subsample."""
+    """Carrega o ícone e força tamanho 16x16. Usa Pillow se disponível; senão, subsample."""
     try:
         base_dir = Path(__file__).resolve().parent.parent  # .../ui -> raiz do projeto
         icon_path = base_dir / "assets" / "github_16.png"
@@ -109,13 +122,11 @@ def _load_github_icon_scaled() -> PhotoImage | None:
                 img = img.resize(TARGET_SIZE, Image.LANCZOS)
             return ImageTk.PhotoImage(img)
         else:
-            # Sem Pillow: usa PhotoImage e, se maior, reduz com subsample (inteiro)
             ph = PhotoImage(file=str(icon_path))
             w, h = ph.width(), ph.height()
-            max_w, max_h = TARGET_SIZE
-            if w > max_w or h > max_h:
-                fx = max(1, w // max_w)
-                fy = max(1, h // max_h)
+            if w > 16 or h > 16:
+                fx = max(1, w // 16)
+                fy = max(1, h // 16)
                 ph = ph.subsample(fx, fy)
             return ph
     except Exception:

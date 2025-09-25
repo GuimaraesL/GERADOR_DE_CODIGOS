@@ -15,7 +15,7 @@ from core.fast_code_generator import gerar_codigos_em_lote
 from utils.helpers import letra_para_coluna
 from config.texts import TEXTS
 
-from ui.help import create_github_link, show_help
+from ui.help import show_help  # removido create_github_link aqui (reutilizado apenas na ajuda)
 from ui.theme import apply_theme, AVAILABLE_THEMES
 
 
@@ -40,12 +40,11 @@ class App:
 
     # ---------- UI ----------
     def _build_ui(self):
-        # Layout raiz (3 blocos: Header, Conteúdo, Rodapé)
         root = self.root
         root.columnconfigure(0, weight=1)
         root.rowconfigure(1, weight=1)
 
-        # Header "Hero"
+        # Header
         header = ttk.Frame(root, padding=(12, 12, 12, 8))
         header.grid(row=0, column=0, sticky="ew")
         header.columnconfigure(0, weight=1)
@@ -58,7 +57,6 @@ class App:
                              style="Subtitle.TLabel")
         subtitle.grid(row=1, column=0, sticky="w", pady=(2, 0))
 
-        # Seletor de tema (top-right)
         theme_box = ttk.Combobox(
             header, state="readonly",
             values=AVAILABLE_THEMES, textvariable=self.theme_var, width=12
@@ -66,7 +64,7 @@ class App:
         theme_box.grid(row=0, column=1, rowspan=2, sticky="e")
         theme_box.bind("<<ComboboxSelected>>", self._on_theme_change)
 
-        # Conteúdo com 3 "cards"
+        # Conteúdo
         content = ttk.Frame(root, padding=(12, 0, 12, 0))
         content.grid(row=1, column=0, sticky="nsew")
         for i in range(3):
@@ -77,14 +75,10 @@ class App:
         card_files = ttk.Labelframe(content, text="Arquivos", style="Card.TLabelframe", padding=10)
         card_files.grid(row=0, column=0, sticky="nsew", padx=(0, 6), pady=6)
 
-        ttk.Button(
-            card_files, text="📂 Selecionar base",
-            command=self.load_base, bootstyle=SUCCESS
-        ).pack(fill=X, pady=4)
-        ttk.Button(
-            card_files, text="🧾 Selecionar entrada (siglas)",
-            command=self.load_entrada, bootstyle=PRIMARY
-        ).pack(fill=X, pady=4)
+        ttk.Button(card_files, text="📂 Selecionar base", command=self.load_base, bootstyle=SUCCESS)\
+            .pack(fill=X, pady=4)
+        ttk.Button(card_files, text="🧾 Selecionar entrada (siglas)", command=self.load_entrada, bootstyle=PRIMARY)\
+            .pack(fill=X, pady=4)
 
         # Card: Opções
         card_opts = ttk.Labelframe(content, text="Opções", style="Card.TLabelframe", padding=10)
@@ -101,32 +95,25 @@ class App:
         card_actions = ttk.Labelframe(content, text="Ações", style="Card.TLabelframe", padding=10)
         card_actions.grid(row=0, column=2, sticky="nsew", padx=(6, 0), pady=6)
 
-        ttk.Button(
-            card_actions, text="▶️ Processar",
-            command=self.processar, bootstyle=PRIMARY
-        ).pack(fill=X, pady=4)
-        ttk.Button(
-            card_actions, text="❓ Ajuda",
-            command=lambda: show_help(self.root), bootstyle=SUCCESS
-        ).pack(fill=X, pady=4)
+        ttk.Button(card_actions, text="▶️ Processar", command=self.processar, bootstyle=PRIMARY)\
+            .pack(fill=X, pady=4)
+        ttk.Button(card_actions, text="❓ Ajuda", command=lambda: show_help(self.root), bootstyle=SUCCESS)\
+            .pack(fill=X, pady=4)
 
-        # Rodapé (status + made by + GitHub)
+        # Rodapé (status + made by centralizado) — sem ícone do GitHub
         footer = ttk.Frame(root, padding=(12, 8, 12, 12))
         footer.grid(row=2, column=0, sticky="ew")
         footer.columnconfigure(0, weight=1)
-        footer.columnconfigure(1, weight=0)
-        footer.columnconfigure(2, weight=1)
+        footer.columnconfigure(1, weight=1)   # central
+        footer.columnconfigure(2, weight=1)   # vazio (mantém centralização)
 
         self.status_label = ttk.Label(footer, text="Pronto", style="Status.TLabel")
         self.status_label.grid(row=0, column=0, sticky="w")
 
-        made_by = ttk.Label(
-            footer, text="Made by GuimaraesL", style="Status.TLabel"
-        )
+        made_by = ttk.Label(footer, text="Made by GuimaraesL", style="Status.TLabel")
         made_by.grid(row=0, column=1, sticky="n")
 
-        gh = create_github_link(footer)
-        gh.grid(row=0, column=2, sticky="e")
+        # coluna 2 propositalmente vazia (sem GitHub aqui)
 
     def _bind_shortcuts(self):
         self.root.bind("<Control-o>", lambda e: self.load_base())
