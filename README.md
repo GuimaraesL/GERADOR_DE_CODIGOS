@@ -162,25 +162,19 @@ Sinta-se à vontade para abrir *issues* e *pull requests*. Descreva claramente o
 ### 1) Arquitetura de Módulos e Artefatos
 ```mermaid
 graph TD
-    %% Direção top-down para ficar mais legível
-    classDef mod fill:#eef7ff,stroke:#3b82f6,stroke-width:1px,color:#0f172a;
-    classDef file fill:#fff7ed,stroke:#f97316,stroke-width:1px,color:#111827;
-    classDef ext fill:#ecfeff,stroke:#06b6d4,stroke-width:1px,color:#0c4a6e;
-    classDef data fill:#f0fdf4,stroke:#22c55e,stroke-width:1px,color:#052e16;
+    U[Usuario] --> GUI[App gui.py]
 
-    U[Usuário]:::ext --> GUI[App<br/>gui.py]:::mod
-
-    subgraph CORE[core/]
-        CG[code_generator.py<br/><small>• codigo_valido()<br/>• proximo_codigo()</small>]:::mod
-        EP[excel_processor.py<br/><small>• carregar_codigos_existentes()<br/>• extrair_siglas()<br/>• salvar_resultado()</small>]:::mod
+    subgraph CORE
+        CG[code_generator.py - codigo_valido; proximo_codigo]
+        EP[excel_processor.py - carregar_codigos_existentes; extrair_siglas; salvar_resultado]
     end
 
-    subgraph UTILS[utils/]
-        H[helpers.py<br/><small>• letra_para_coluna()</small>]:::mod
+    subgraph UTILS
+        H[helpers.py - letra_para_coluna]
     end
 
-    subgraph CONFIG[config/]
-        T[texts.py<br/><small>• TEXTS</small>]:::mod
+    subgraph CONFIG
+        T[texts.py - TEXTS]
     end
 
     GUI --> EP
@@ -188,16 +182,16 @@ graph TD
     GUI --> H
     GUI --> T
 
-    B[(Base.xlsx<br/><small>aba: aba1<br/>colunas: A/B (desde linha 2)</small>)]:::file
-    S[(Siglas.xlsx<br/><small>aba: SIGLAS<br/>coluna: A</small>)]:::file
-    J[(codigos.json)]:::data
-    R[(Aba RESULTADO*<br/><small>RESULTADO, RESULTADO1, ...</small>)]:::file
+    B[Base.xlsx aba aba1 colunas A B]
+    S[Siglas.xlsx aba SIGLAS coluna A]
+    J[codigos.json]
+    R[Aba RESULTADO variantes]
 
-    EP -- lê --> B
-    EP -- gera --> J
-    EP -- lê siglas --> S
-    EP -- escreve --> R
-    CG -- usa df_base --> J
+    EP --> B
+    EP --> J
+    EP --> S
+    EP --> R
+    CG --> J
 ```
 
 ### 2) Diagrama de Sequência (Fluxo pela Interface)
@@ -245,25 +239,19 @@ sequenceDiagram
 ### 3) Fluxo do Algoritmo `proximo_codigo`
 ```mermaid
 flowchart TD
-    classDef step fill:#eef7ff,stroke:#3b82f6,color:#0f172a,stroke-width:1px;
-    classDef decision fill:#fff7ed,stroke:#f97316,color:#111827,stroke-width:1px;
-    classDef io fill:#f0fdf4,stroke:#22c55e,color:#052e16,stroke-width:1px;
-
-    A[Entrada:<br/>sigla (3 letras), df_base, digitos (3 ou 4)]:::io --> B[Filtrar df_base por<br/>codigo_valido()]:::step
-    B --> C[Filtrar por códigos que<br/>começam com a sigla]:::step
-    C --> D[Filtrar por comprimento == (3 + digitos)]:::step
-    D --> E{Conjunto resultante<br/>está vazio?}:::decision
-
-    E -- Sim --> F[Retorna sigla + '1'.zfill(digitos)]:::step
-    E -- Não --> G[Extrair números com regex<br/>(ex.: ABC(\\d{4}))]:::step
-    G --> H{Lista de números<br/>está vazia?}:::decision
-
+    A[Entrada: sigla, df_base, digitos] --> B[Filtrar códigos válidos]
+    B --> C[Filtrar por prefixo da sigla]
+    C --> D[Filtrar por comprimento 3+digitos]
+    D --> E{Conjunto vazio?}
+    E -- Sim --> F[Retorna sigla + 1 preenchido com zeros]
+    E -- Não --> G[Extrair números com regex]
+    G --> H{Lista vazia?}
     H -- Sim --> F
-    H -- Não --> I[Converte para int e cria 'usados']:::step
-    I --> J[Calcula 'lacunas' = {1..max+1} - usados]:::step
-    J --> K{Existe lacuna?}:::decision
-    K -- Sim --> L[proximo = menor(lacunas)]:::step
-    K -- Não --> M[proximo = max(usados) + 1]:::step
-    L --> N[Retorna sigla + str(proximo).zfill(digitos)]:::step
+    H -- Não --> I[Converter para int e obter usados]
+    I --> J[Calcular lacunas 1..max+1 - usados]
+    J --> K{Existe lacuna?}
+    K -- Sim --> L[proximo = menor lacuna]
+    K -- Não --> M[proximo = max + 1]
+    L --> N[Retorna sigla + proximo com zeros]
     M --> N
 ```
